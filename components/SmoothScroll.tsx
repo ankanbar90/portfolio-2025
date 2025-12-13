@@ -1,0 +1,14 @@
+"use client";
+import { ReactLenis } from "lenis/react"; // This is the modern import
+
+export default function SmoothScroll({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <ReactLenis root options={{ lerp: 0.1, duration: 1.5, smoothWheel: true }}>
+      {children}
+    </ReactLenis>
+  );
+}
