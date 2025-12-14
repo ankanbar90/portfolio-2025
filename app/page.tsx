@@ -43,14 +43,17 @@ const MagneticCursor = () => {
   const cursorYSpring = useSpring(cursorY, springConfig);
 
   useEffect(() => {
-    const moveCursor = (e: MouseEvent) => {
-      cursorX.set(e.clientX - 16);
-      cursorY.set(e.clientY - 16);
-    };
-    window.addEventListener("mousemove", moveCursor);
-    return () => {
-      window.removeEventListener("mousemove", moveCursor);
-    };
+    // Only run on desktop
+    if (window.innerWidth > 768) {
+      const moveCursor = (e: MouseEvent) => {
+        cursorX.set(e.clientX - 16);
+        cursorY.set(e.clientY - 16);
+      };
+      window.addEventListener("mousemove", moveCursor);
+      return () => {
+        window.removeEventListener("mousemove", moveCursor);
+      };
+    }
   }, [cursorX, cursorY]);
 
   return (
@@ -75,7 +78,7 @@ const Header = ({ onAboutClick }: { onAboutClick: () => void }) => {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 1, duration: 0.8 }}
-      className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 py-4 md:py-6 md:px-12 bg-gradient-to-b from-white/90 to-transparent backdrop-blur-[2px]"
+      className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 py-4 md:py-6 md:px-12 bg-white/95 md:bg-gradient-to-b md:from-white/90 md:to-transparent backdrop-blur-none md:backdrop-blur-[2px] shadow-sm md:shadow-none"
     >
       <div
         className="text-xl font-bold tracking-tighter text-gray-900 cursor-pointer"
@@ -129,7 +132,7 @@ const AboutModal = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 50 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-4xl max-h-[85vh] overflow-y-auto rounded-3xl border border-white/60 bg-white/90 p-6 shadow-2xl backdrop-blur-xl md:p-12 custom-scrollbar"
+            className="relative w-full max-w-4xl max-h-[85vh] overflow-y-auto rounded-3xl border border-white/60 bg-white p-6 shadow-2xl md:bg-white/90 md:backdrop-blur-xl md:p-12 custom-scrollbar"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -171,7 +174,7 @@ const AboutModal = ({
                     ].map((cert, i) => (
                       <div
                         key={i}
-                        className="p-4 rounded-xl bg-white/50 border border-white hover:shadow-md transition-shadow"
+                        className="p-4 rounded-xl bg-gray-50 border border-gray-100 hover:shadow-md transition-shadow"
                       >
                         <p className="font-semibold text-gray-800 text-sm">
                           {cert}
@@ -192,7 +195,7 @@ const AboutModal = ({
   );
 };
 
-// --- 4. MAGIC NAME (RESPONSIVE) ---
+// --- 4. MAGIC NAME ---
 const MagicName = () => {
   const name = "Ankan Bar";
   const controls = useAnimation();
@@ -238,7 +241,8 @@ const MagicName = () => {
   );
 };
 
-// --- 5. REUSABLE GLASS CARD (OPTIMIZED BLUR) ---
+// --- 5. REUSABLE GLASS CARD (HIGH PERFORMANCE MODE) ---
+// Note: backdrop-blur-none on mobile removes the heavy processing
 const GlassCard = ({
   children,
   className,
@@ -256,15 +260,14 @@ const GlassCard = ({
       viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.8, delay: delay, type: "spring", bounce: 0.3 }}
       whileHover={{ scale: 1.02 }}
-      // Use backdrop-blur-sm on mobile for performance, md on desktop
-      className={`group relative overflow-hidden rounded-3xl border border-white/60 bg-white/40 shadow-xl backdrop-blur-sm md:backdrop-blur-md transition-all hover:border-white hover:shadow-2xl ${className}`}
+      className={`group relative overflow-hidden rounded-3xl border border-white/60 bg-white/95 backdrop-blur-none shadow-xl md:bg-white/40 md:backdrop-blur-md transition-all hover:border-white hover:shadow-2xl ${className}`}
     >
       {children}
     </motion.div>
   );
 };
 
-// --- 6. TECH BUBBLE (OPTIMIZED) ---
+// --- 6. TECH BUBBLE (STATIC ON MOBILE) ---
 const TechBubble = ({ icon, name, color, delay }: any) => {
   const [randomVals, setRandomVals] = useState<{
     y: number[];
@@ -292,17 +295,22 @@ const TechBubble = ({ icon, name, color, delay }: any) => {
 
   return (
     <motion.div
-      drag={!isMobile} // Disable drag on mobile
+      drag={!isMobile} // Disabled drag on mobile
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       dragElastic={0.6}
       dragTransition={{ bounceStiffness: 500, bounceDamping: 10 }}
       whileHover={{ scale: 1.2, cursor: "grab", zIndex: 10 }}
       whileTap={{ scale: 0.9, cursor: "grabbing" }}
-      animate={{
-        y: randomVals.y,
-        x: randomVals.x,
-        scale: randomVals.scale,
-      }}
+      // Disable floating animation on mobile to save battery/CPU
+      animate={
+        !isMobile
+          ? {
+              y: randomVals.y,
+              x: randomVals.x,
+              scale: randomVals.scale,
+            }
+          : {}
+      }
       transition={{
         duration: 3 + Math.random() * 4,
         repeat: Infinity,
@@ -326,6 +334,11 @@ const TechBubble = ({ icon, name, color, delay }: any) => {
 
 // --- 7. STATUS BENTO GRID ---
 const StatusBento = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
   return (
     <section id="status" className="py-20 px-6">
       <div className="mx-auto max-w-6xl">
@@ -350,18 +363,23 @@ const StatusBento = () => {
 
           <GlassCard className="flex items-center justify-center p-10 min-h-[250px] relative overflow-hidden">
             <div className="absolute inset-0 flex items-center justify-center">
+              {/* Animation paused on mobile */}
               <motion.div
-                animate={{ rotate: 360 }}
+                animate={!isMobile ? { rotate: 360 } : {}}
                 transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
                 className="w-40 h-40 border-[1px] border-dashed border-gray-300 rounded-full absolute"
               />
               <motion.div
-                animate={{ rotate: -360 }}
+                animate={!isMobile ? { rotate: -360 } : {}}
                 transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
                 className="w-28 h-28 border-[1px] border-dotted border-blue-400 rounded-full absolute"
               />
               <motion.div
-                animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                animate={
+                  !isMobile
+                    ? { scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }
+                    : {}
+                }
                 transition={{ duration: 3, repeat: Infinity }}
                 className="w-12 h-12 bg-gradient-to-tr from-blue-100 to-white rounded-full shadow-lg flex items-center justify-center"
               >
@@ -418,7 +436,7 @@ const ContactSection = () => {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
-                className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/90 backdrop-blur-md"
+                className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/95 backdrop-blur-none md:bg-white/90 md:backdrop-blur-md"
               >
                 <motion.div
                   initial={{ scale: 0 }}
@@ -447,7 +465,7 @@ const ContactSection = () => {
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full rounded-xl border border-white/60 bg-white/50 px-4 py-3 text-gray-900 placeholder-gray-400 backdrop-blur-sm transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 md:border-white/60 md:bg-white/50 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
                   placeholder="John Doe"
                 />
               </div>
@@ -459,7 +477,7 @@ const ContactSection = () => {
                   type="tel"
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full rounded-xl border border-white/60 bg-white/50 px-4 py-3 text-gray-900 placeholder-gray-400 backdrop-blur-sm transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 md:border-white/60 md:bg-white/50 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
                   placeholder="+91 98765 43210"
                 />
               </div>
@@ -474,7 +492,7 @@ const ContactSection = () => {
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full rounded-xl border border-white/60 bg-white/50 px-4 py-3 text-gray-900 placeholder-gray-400 backdrop-blur-sm transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 md:border-white/60 md:bg-white/50 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
                 placeholder="john@example.com"
               />
             </div>
@@ -488,7 +506,7 @@ const ContactSection = () => {
                 rows={4}
                 value={form.message}
                 onChange={(e) => setForm({ ...form, message: e.target.value })}
-                className="w-full rounded-xl border border-white/60 bg-white/50 px-4 py-3 text-gray-900 placeholder-gray-400 backdrop-blur-sm transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 md:border-white/60 md:bg-white/50 px-4 py-3 text-gray-900 placeholder-gray-400 transition-all focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-200"
                 placeholder="What's on your mind?"
               />
             </div>
@@ -591,29 +609,29 @@ export default function Portfolio() {
       <Header onAboutClick={() => setShowAbout(true)} />
       <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
 
-      {/* --- BACKGROUND SECTION (FIXED) --- */}
+      {/* --- BACKGROUND SECTION (Optimized for Mobile) --- */}
       <div className="fixed inset-0 -z-50 h-full w-full bg-gray-50">
-        {/* 1. Fallback Image (Underneath) */}
+        {/* 1. Static Image (Always Visible on Mobile) */}
         <img
           src="/background.png"
           alt="Background"
-          className="absolute inset-0 h-full w-full object-cover opacity-50"
+          className="absolute inset-0 h-full w-full object-cover opacity-30 md:opacity-50"
         />
 
-        {/* 2. Video (On Top) */}
+        {/* 2. Video (HIDDEN on Mobile) */}
         <video
           autoPlay
           loop
           muted
           playsInline
-          poster="/background.png" // Poster ensures something shows while loading
-          className="absolute inset-0 h-full w-full object-cover opacity-20"
+          poster="/background.png"
+          className="hidden md:block absolute inset-0 h-full w-full object-cover opacity-20"
         >
           <source src="/background.mp4" type="video/mp4" />
         </video>
 
-        {/* 3. Blur Overlay (Optimized for Mobile) */}
-        <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] md:backdrop-blur-[3px]" />
+        {/* 3. Overlay (No Blur on Mobile) */}
+        <div className="absolute inset-0 bg-white/60 backdrop-blur-none md:backdrop-blur-[3px]" />
       </div>
 
       {/* --- HERO SECTION --- */}
