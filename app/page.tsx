@@ -34,7 +34,7 @@ import {
 } from "react-icons/fa";
 import { SiNextdotjs, SiTailwindcss, SiFramer, SiMysql } from "react-icons/si";
 
-// --- 1. MAGNETIC CURSOR (OPTIMIZED: HIDDEN ON MOBILE) ---
+// --- 1. MAGNETIC CURSOR (HIDDEN ON MOBILE) ---
 const MagneticCursor = () => {
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
@@ -55,7 +55,6 @@ const MagneticCursor = () => {
 
   return (
     <motion.div
-      // Added 'hidden md:block' -> Only shows on medium screens (Tablets/PC) and up
       className="hidden md:block pointer-events-none fixed left-0 top-0 z-50 h-8 w-8 rounded-full border border-gray-800 bg-white/20 backdrop-invert mix-blend-difference"
       style={{ x: cursorXSpring, y: cursorYSpring }}
     />
@@ -193,7 +192,7 @@ const AboutModal = ({
   );
 };
 
-// --- 4. MAGIC NAME (RESPONSIVE TEXT) ---
+// --- 4. MAGIC NAME (RESPONSIVE) ---
 const MagicName = () => {
   const name = "Ankan Bar";
   const controls = useAnimation();
@@ -219,7 +218,6 @@ const MagicName = () => {
 
   return (
     <div className="relative cursor-pointer select-none mb-4" onClick={explode}>
-      {/* Changed text size: text-6xl (mobile) -> md:text-9xl (desktop) */}
       <h1 className="flex flex-wrap justify-center text-5xl md:text-6xl lg:text-9xl font-extrabold tracking-tighter text-gray-900">
         {name.split("").map((char, i) => (
           <motion.span
@@ -240,7 +238,7 @@ const MagicName = () => {
   );
 };
 
-// --- 5. REUSABLE GLASS CARD ---
+// --- 5. REUSABLE GLASS CARD (OPTIMIZED BLUR) ---
 const GlassCard = ({
   children,
   className,
@@ -251,21 +249,22 @@ const GlassCard = ({
     <motion.div
       initial={{
         opacity: 0,
-        x: direction === "left" ? -50 : direction === "right" ? 50 : 0, // Reduced slide distance for mobile
+        x: direction === "left" ? -50 : direction === "right" ? 50 : 0,
         y: direction === "up" ? 50 : 0,
       }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: false, amount: 0.1 }} // Trigger animation sooner on mobile
+      viewport={{ once: false, amount: 0.1 }}
       transition={{ duration: 0.8, delay: delay, type: "spring", bounce: 0.3 }}
       whileHover={{ scale: 1.02 }}
-      className={`group relative overflow-hidden rounded-3xl border border-white/60 bg-white/40 shadow-xl backdrop-blur-md transition-all hover:border-white hover:shadow-2xl ${className}`}
+      // Use backdrop-blur-sm on mobile for performance, md on desktop
+      className={`group relative overflow-hidden rounded-3xl border border-white/60 bg-white/40 shadow-xl backdrop-blur-sm md:backdrop-blur-md transition-all hover:border-white hover:shadow-2xl ${className}`}
     >
       {children}
     </motion.div>
   );
 };
 
-// --- 6. TECH BUBBLE (OPTIMIZED: NO DRAG ON MOBILE) ---
+// --- 6. TECH BUBBLE (OPTIMIZED) ---
 const TechBubble = ({ icon, name, color, delay }: any) => {
   const [randomVals, setRandomVals] = useState<{
     y: number[];
@@ -275,9 +274,7 @@ const TechBubble = ({ icon, name, color, delay }: any) => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // Check if mobile
     setIsMobile(window.innerWidth < 768);
-
     setRandomVals({
       y: [0, (Math.random() - 0.5) * 30, 0],
       x: [0, (Math.random() - 0.5) * 30, 0],
@@ -295,8 +292,7 @@ const TechBubble = ({ icon, name, color, delay }: any) => {
 
   return (
     <motion.div
-      // ONLY ENABLE DRAG IF NOT MOBILE to prevent scroll blocking
-      drag={!isMobile}
+      drag={!isMobile} // Disable drag on mobile
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       dragElastic={0.6}
       dragTransition={{ bounceStiffness: 500, bounceDamping: 10 }}
@@ -595,18 +591,29 @@ export default function Portfolio() {
       <Header onAboutClick={() => setShowAbout(true)} />
       <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
 
-      {/* Background */}
+      {/* --- BACKGROUND SECTION (FIXED) --- */}
       <div className="fixed inset-0 -z-50 h-full w-full bg-gray-50">
+        {/* 1. Fallback Image (Underneath) */}
+        <img
+          src="/background.png"
+          alt="Background"
+          className="absolute inset-0 h-full w-full object-cover opacity-50"
+        />
+
+        {/* 2. Video (On Top) */}
         <video
           autoPlay
           loop
           muted
           playsInline
+          poster="/background.png" // Poster ensures something shows while loading
           className="absolute inset-0 h-full w-full object-cover opacity-20"
         >
           <source src="/background.mp4" type="video/mp4" />
         </video>
-        <div className="absolute inset-0 bg-white/60 backdrop-blur-[3px]" />
+
+        {/* 3. Blur Overlay (Optimized for Mobile) */}
+        <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] md:backdrop-blur-[3px]" />
       </div>
 
       {/* --- HERO SECTION --- */}
