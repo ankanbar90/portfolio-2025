@@ -34,7 +34,7 @@ import {
 } from "react-icons/fa";
 import { SiNextdotjs, SiTailwindcss, SiFramer, SiMysql } from "react-icons/si";
 
-// --- 1. MAGNETIC CURSOR ---
+// --- 1. MAGNETIC CURSOR (OPTIMIZED: HIDDEN ON MOBILE) ---
 const MagneticCursor = () => {
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
@@ -55,7 +55,8 @@ const MagneticCursor = () => {
 
   return (
     <motion.div
-      className="pointer-events-none fixed left-0 top-0 z-50 h-8 w-8 rounded-full border border-gray-800 bg-white/20 backdrop-invert mix-blend-difference"
+      // Added 'hidden md:block' -> Only shows on medium screens (Tablets/PC) and up
+      className="hidden md:block pointer-events-none fixed left-0 top-0 z-50 h-8 w-8 rounded-full border border-gray-800 bg-white/20 backdrop-invert mix-blend-difference"
       style={{ x: cursorXSpring, y: cursorYSpring }}
     />
   );
@@ -75,7 +76,7 @@ const Header = ({ onAboutClick }: { onAboutClick: () => void }) => {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 1, duration: 0.8 }}
-      className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 py-6 md:px-12 bg-gradient-to-b from-white/90 to-transparent backdrop-blur-[2px]"
+      className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 py-4 md:py-6 md:px-12 bg-gradient-to-b from-white/90 to-transparent backdrop-blur-[2px]"
     >
       <div
         className="text-xl font-bold tracking-tighter text-gray-900 cursor-pointer"
@@ -129,19 +130,19 @@ const AboutModal = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 50 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-4xl max-h-[85vh] overflow-y-auto rounded-3xl border border-white/60 bg-white/80 p-8 shadow-2xl backdrop-blur-xl md:p-12 custom-scrollbar"
+            className="relative w-full max-w-4xl max-h-[85vh] overflow-y-auto rounded-3xl border border-white/60 bg-white/90 p-6 shadow-2xl backdrop-blur-xl md:p-12 custom-scrollbar"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={onClose}
-              className="absolute top-6 right-6 p-2 rounded-full hover:bg-gray-200 transition-colors"
+              className="absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded-full hover:bg-gray-200 transition-colors"
             >
               <FaTimes className="text-xl text-gray-600" />
             </button>
 
             <div className="grid md:grid-cols-3 gap-10">
               <div className="md:col-span-1 flex flex-col items-center text-center">
-                <div className="w-40 h-40 mb-6 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                <div className="w-32 h-32 md:w-40 md:h-40 mb-6 rounded-full overflow-hidden border-4 border-white shadow-lg">
                   <img
                     src="/profile.jpg"
                     alt="Profile"
@@ -154,9 +155,7 @@ const AboutModal = ({
                 </p>
                 <p className="text-gray-600 text-sm leading-relaxed">
                   Passionate about building fluid web experiences and
-                  intelligent systems. Building Skills in Full-Stack Development
-                  | Exploring AI & Machine Learning | AIML Student Combining
-                  creativity with code.
+                  intelligent systems.
                 </p>
               </div>
 
@@ -185,30 +184,6 @@ const AboutModal = ({
                     ))}
                   </div>
                 </div>
-
-                <div>
-                  <h3 className="flex items-center gap-2 text-xl font-bold text-gray-800 mb-4">
-                    <FaRegNewspaper className="text-blue-500" /> Recent Posts
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-xl bg-white/50 border border-white hover:bg-white/80 transition-colors cursor-pointer">
-                      <h4 className="font-bold text-gray-800">
-                        The Future of UI Design
-                      </h4>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Exploring glassmorphism and fluid animations in 2025.
-                      </p>
-                    </div>
-                    <div className="p-4 rounded-xl bg-white/50 border border-white hover:bg-white/80 transition-colors cursor-pointer">
-                      <h4 className="font-bold text-gray-800">
-                        Why I switched to Next.js
-                      </h4>
-                      <p className="text-sm text-gray-600 mt-1">
-                        A deep dive into server components and performance.
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </motion.div>
@@ -218,12 +193,11 @@ const AboutModal = ({
   );
 };
 
-// --- 4. MAGIC NAME ---
+// --- 4. MAGIC NAME (RESPONSIVE TEXT) ---
 const MagicName = () => {
   const name = "Ankan Bar";
   const controls = useAnimation();
 
-  // Fix: Move random generation to onClick/Trigger to avoid hydration mismatch
   const explode = async () => {
     await controls.start((i) => ({
       x: (Math.random() - 0.5) * 500,
@@ -245,13 +219,14 @@ const MagicName = () => {
 
   return (
     <div className="relative cursor-pointer select-none mb-4" onClick={explode}>
-      <h1 className="flex justify-center text-6xl font-extrabold tracking-tighter text-gray-900 md:text-9xl">
+      {/* Changed text size: text-6xl (mobile) -> md:text-9xl (desktop) */}
+      <h1 className="flex flex-wrap justify-center text-5xl md:text-6xl lg:text-9xl font-extrabold tracking-tighter text-gray-900">
         {name.split("").map((char, i) => (
           <motion.span
             custom={i}
             animate={controls}
             key={i}
-            className={`inline-block ${char === " " ? "w-4 md:w-8" : ""}`}
+            className={`inline-block ${char === " " ? "w-2 md:w-8" : ""}`}
             whileHover={{ scale: 1.2, color: "#2563EB", y: -10 }}
           >
             {char}
@@ -276,13 +251,13 @@ const GlassCard = ({
     <motion.div
       initial={{
         opacity: 0,
-        x: direction === "left" ? -100 : direction === "right" ? 100 : 0,
-        y: direction === "up" ? 100 : 0,
+        x: direction === "left" ? -50 : direction === "right" ? 50 : 0, // Reduced slide distance for mobile
+        y: direction === "up" ? 50 : 0,
       }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: false, amount: 0.2 }}
+      viewport={{ once: false, amount: 0.1 }} // Trigger animation sooner on mobile
       transition={{ duration: 0.8, delay: delay, type: "spring", bounce: 0.3 }}
-      whileHover={{ scale: 1.02, backgroundColor: "rgba(255, 255, 255, 0.6)" }}
+      whileHover={{ scale: 1.02 }}
       className={`group relative overflow-hidden rounded-3xl border border-white/60 bg-white/40 shadow-xl backdrop-blur-md transition-all hover:border-white hover:shadow-2xl ${className}`}
     >
       {children}
@@ -290,17 +265,19 @@ const GlassCard = ({
   );
 };
 
-// --- 6. TECH BUBBLE COMPONENT (FIXED HYDRATION) ---
+// --- 6. TECH BUBBLE (OPTIMIZED: NO DRAG ON MOBILE) ---
 const TechBubble = ({ icon, name, color, delay }: any) => {
-  // Use State to hold random values to ensure Client/Server match
   const [randomVals, setRandomVals] = useState<{
     y: number[];
     x: number[];
     scale: number[];
   } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // Generate random values ONLY on the client side
+    // Check if mobile
+    setIsMobile(window.innerWidth < 768);
+
     setRandomVals({
       y: [0, (Math.random() - 0.5) * 30, 0],
       x: [0, (Math.random() - 0.5) * 30, 0],
@@ -314,11 +291,12 @@ const TechBubble = ({ icon, name, color, delay }: any) => {
     });
   }, []);
 
-  if (!randomVals) return null; // Don't render until hydration is complete
+  if (!randomVals) return null;
 
   return (
     <motion.div
-      drag
+      // ONLY ENABLE DRAG IF NOT MOBILE to prevent scroll blocking
+      drag={!isMobile}
       dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
       dragElastic={0.6}
       dragTransition={{ bounceStiffness: 500, bounceDamping: 10 }}
@@ -330,7 +308,7 @@ const TechBubble = ({ icon, name, color, delay }: any) => {
         scale: randomVals.scale,
       }}
       transition={{
-        duration: 3 + Math.random() * 4, // This math.random is fine inside animate prop
+        duration: 3 + Math.random() * 4,
         repeat: Infinity,
         repeatType: "mirror",
         ease: "easeInOut",
@@ -339,11 +317,11 @@ const TechBubble = ({ icon, name, color, delay }: any) => {
       className="flex flex-col items-center justify-center gap-2"
     >
       <div
-        className={`flex h-20 w-20 items-center justify-center rounded-full border border-white/50 bg-white/30 backdrop-blur-md shadow-lg transition-colors hover:bg-white/60 ${color}`}
+        className={`flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-full border border-white/50 bg-white/30 backdrop-blur-md shadow-lg transition-colors hover:bg-white/60 ${color}`}
       >
-        <div className="text-4xl">{icon}</div>
+        <div className="text-3xl md:text-4xl">{icon}</div>
       </div>
-      <span className="text-xs font-bold uppercase tracking-wider text-gray-500 bg-white/50 px-2 py-1 rounded-full">
+      <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-gray-500 bg-white/50 px-2 py-1 rounded-full">
         {name}
       </span>
     </motion.div>
@@ -356,20 +334,20 @@ const StatusBento = () => {
     <section id="status" className="py-20 px-6">
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <GlassCard className="md:col-span-2 p-10 flex flex-col justify-center min-h-[250px] relative overflow-hidden">
+          <GlassCard className="md:col-span-2 p-8 md:p-10 flex flex-col justify-center min-h-[250px] relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-100 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/4"></div>
 
             <div className="flex items-center gap-3 mb-4 text-blue-600">
-              <FaUniversity className="text-2xl" />
+              <FaUniversity className="text-xl md:text-2xl" />
               <span className="text-xs font-bold uppercase tracking-widest">
                 Education Status
               </span>
             </div>
-            <h3 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+            <h3 className="text-2xl md:text-4xl font-bold text-gray-900 leading-tight">
               Currently in my{" "}
               <span className="text-blue-600">3rd Year of Engineering</span>
             </h3>
-            <p className="mt-4 text-lg text-gray-600">
+            <p className="mt-4 text-base md:text-lg text-gray-600">
               Specializing in Artificial Intelligence & Machine Learning.
             </p>
           </GlassCard>
@@ -404,7 +382,7 @@ const StatusBento = () => {
   );
 };
 
-// --- NEW COMPONENT: ASK ME ANYTHING (CONTACT FORM) ---
+// --- CONTACT FORM ---
 const ContactSection = () => {
   const [form, setForm] = useState({
     name: "",
@@ -429,7 +407,7 @@ const ContactSection = () => {
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          className="mb-12 text-center text-4xl font-bold tracking-tight text-gray-900 md:text-5xl"
+          className="mb-12 text-center text-3xl md:text-5xl font-bold tracking-tight text-gray-900"
         >
           Ask Me Anything
           <span className="block text-sm font-normal text-gray-500 mt-2 tracking-wide">
@@ -437,7 +415,7 @@ const ContactSection = () => {
           </span>
         </motion.h2>
 
-        <GlassCard className="p-8 md:p-12 relative overflow-hidden">
+        <GlassCard className="p-6 md:p-12 relative overflow-hidden">
           <AnimatePresence>
             {isSent && (
               <motion.div
@@ -535,7 +513,7 @@ const ContactSection = () => {
   );
 };
 
-// --- NEW FOOTER COMPONENT ---
+// --- FOOTER ---
 const Footer = ({ onAboutClick }: { onAboutClick: () => void }) => {
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -545,12 +523,9 @@ const Footer = ({ onAboutClick }: { onAboutClick: () => void }) => {
   return (
     <footer className="relative z-10 py-12 px-6 border-t border-white/40 bg-white/30 backdrop-blur-md">
       <div className="mx-auto max-w-6xl flex flex-col md:flex-row justify-between items-center gap-6">
-        {/* Brand */}
         <div className="text-2xl font-bold tracking-tighter text-gray-900">
           AB.
         </div>
-
-        {/* Footer Nav */}
         <nav className="flex flex-wrap justify-center gap-6 md:gap-10">
           <button
             onClick={onAboutClick}
@@ -589,8 +564,6 @@ const Footer = ({ onAboutClick }: { onAboutClick: () => void }) => {
             Connect
           </button>
         </nav>
-
-        {/* Copyright */}
         <div className="text-xs text-gray-500 uppercase tracking-widest">
           © 2025 Ankan Bar
         </div>
@@ -603,7 +576,6 @@ const Footer = ({ onAboutClick }: { onAboutClick: () => void }) => {
 export default function Portfolio() {
   const [showAbout, setShowAbout] = useState(false);
 
-  // Tech Data
   const techs = [
     { name: "HTML5", icon: <FaHtml5 />, color: "text-orange-600" },
     { name: "CSS3", icon: <FaCss3Alt />, color: "text-blue-600" },
@@ -620,18 +592,21 @@ export default function Portfolio() {
   return (
     <main className="relative min-h-screen cursor-none font-sans text-gray-900 selection:bg-blue-200">
       <MagneticCursor />
-      {/* Header Updated with new links */}
       <Header onAboutClick={() => setShowAbout(true)} />
       <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
 
       {/* Background */}
       <div className="fixed inset-0 -z-50 h-full w-full bg-gray-50">
-        <img
-          src="/background.png"
-          alt="Background"
-          className="absolute inset-0 h-full w-full object-cover opacity-50"
-        />
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px]" />
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover opacity-20"
+        >
+          <source src="/background.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-white/60 backdrop-blur-[3px]" />
       </div>
 
       {/* --- HERO SECTION --- */}
@@ -643,7 +618,7 @@ export default function Portfolio() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="mb-10 text-xl text-gray-600 md:text-2xl font-light tracking-wide"
+            className="mb-10 text-lg md:text-2xl font-light tracking-wide text-gray-600"
           >
             Creative Developer & Interaction Designer
           </motion.p>
@@ -692,7 +667,7 @@ export default function Portfolio() {
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: false }}
-            className="mb-16 text-4xl font-bold tracking-tight text-gray-900 md:text-6xl flex items-center gap-4"
+            className="mb-16 text-3xl md:text-6xl font-bold tracking-tight text-gray-900 flex items-center gap-4"
           >
             <FaCode className="text-blue-600 opacity-50" /> Selected Works
           </motion.h2>
@@ -710,7 +685,7 @@ export default function Portfolio() {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               </div>
-              <h3 className="mb-2 text-3xl font-bold text-gray-900">
+              <h3 className="mb-2 text-2xl md:text-3xl font-bold text-gray-900">
                 College Complaint System
               </h3>
               <p className="mb-6 text-gray-600">
@@ -731,7 +706,7 @@ export default function Portfolio() {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               </div>
-              <h3 className="mb-2 text-3xl font-bold text-gray-900">
+              <h3 className="mb-2 text-2xl md:text-3xl font-bold text-gray-900">
                 Smart Election App
               </h3>
               <p className="mb-6 text-gray-600">
@@ -744,13 +719,12 @@ export default function Portfolio() {
       </section>
 
       {/* --- TECHNOLOGY BUBBLES SECTION --- */}
-      {/* Added ID="tech" for navigation */}
       <section id="tech" className="py-20 px-6 overflow-hidden">
         <div className="mx-auto max-w-6xl text-center">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            className="mb-16 text-4xl font-bold tracking-tight text-gray-900 md:text-5xl"
+            className="mb-16 text-3xl md:text-5xl font-bold tracking-tight text-gray-900"
           >
             Technologies I Use
             <span className="block text-sm font-normal text-gray-500 mt-2 tracking-wide">
@@ -785,7 +759,7 @@ export default function Portfolio() {
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: false }}
-            className="mb-12 text-center text-4xl font-bold tracking-tight text-gray-900 md:text-5xl flex items-center justify-center gap-4"
+            className="mb-12 text-center text-3xl md:text-5xl font-bold tracking-tight text-gray-900 flex items-center justify-center gap-4"
           >
             Connect <FaEnvelope className="text-blue-600 opacity-50" />
           </motion.h2>
@@ -832,7 +806,7 @@ export default function Portfolio() {
         </div>
       </section>
 
-      {/* --- NEW FOOTER --- */}
+      {/* --- FOOTER --- */}
       <Footer onAboutClick={() => setShowAbout(true)} />
     </main>
   );
