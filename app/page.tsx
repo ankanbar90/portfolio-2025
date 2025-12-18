@@ -168,9 +168,9 @@ const AboutModal = ({
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {[
-                      "Machine Learning A-Z",
-                      "React Advanced Patterns",
-                      "Python Masterclass",
+                      "Cyber job Simulation",
+                      "Technology Job Simulation",
+                      "Data Analytics Virtual Job Simulation",
                     ].map((cert, i) => (
                       <div
                         key={i}
@@ -180,7 +180,7 @@ const AboutModal = ({
                           {cert}
                         </p>
                         <p className="text-xs text-gray-500 mt-1">
-                          Udemy • 2024
+                          Deloite Australia • 2025
                         </p>
                       </div>
                     ))}
